@@ -1,0 +1,19 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+  <persistence-unit name="demo">
+    <provider>org.hibernate.reactive.provider.ReactivePersistenceProvider</provider>  <!--1-->
+    <class>com.io.vertx.tcc_starter.entity.Idioma</class> <!--2-->
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost/vertx-tcc"/>  <!--3-->
+      <property name="javax.persistence.jdbc.user" value="postgres"/>
+      <property name="javax.persistence.jdbc.password" value="525906"/>
+
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.connection.pool_size" value="30"/>
+      <property name="hibernate.show_sql" value="false"/>
+    </properties>
+  </persistence-unit>
+</persistence>
