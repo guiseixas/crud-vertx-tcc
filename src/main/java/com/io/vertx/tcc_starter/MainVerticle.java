@@ -65,32 +65,32 @@ public class MainVerticle extends AbstractVerticle {
     router.route().handler(BodyHandler.create());
 
     //Idioma
-    router.post("/idiomas").respond(this::createIdioma);
-    router.put("/idiomas").respond(this::updateIdioma);
-    router.get("/idiomas").respond(this::findIdiomas);
-    router.get("/idiomas/:id").respond(this::findIdioma);
-    router.delete("/idiomas/:id").respond(this::deleteIdioma);
+    router.post("/idioma").respond(this::salvaIdioma);
+    router.put("/idioma").respond(this::atualizaIdioma);
+    router.get("/idioma").respond(this::listaIdiomas);
+    router.get("/idioma/:id").respond(this::getIdiomaById);
+    router.delete("/idioma/:id").respond(this::deleteIdiomaById);
 
     //Categoria
-    router.post("/categorias").respond(this::createCategoria);
-    router.put("/categorias").respond(this::updateCategoria);
-    router.get("/categorias").respond(this::findCategorias);
-    router.get("/categorias/:id").respond(this::findCategoria);
-    router.delete("/categorias/:id").respond(this::deleteCategoria);
+    router.post("/categoria").respond(this::salvaCategoria);
+    router.put("/categoria").respond(this::atualizaCategoria);
+    router.get("/categoria").respond(this::listaCategorias);
+    router.get("/categoria/:id").respond(this::getCategoriaById);
+    router.delete("/categoria/:id").respond(this::deleteCategoriaById);
 
     //Filme
-    router.post("/filmes").respond(this::createFilme);
-    router.put("/filmes").respond(this::updateFilme);
-    router.get("/filmes").respond(this::findFilmes);
-    router.get("/filmes/:id").respond(this::findFilme);
-    router.delete("/filmes/:id").respond(this::deleteFilme);
+    router.post("/filme").respond(this::salvaFilme);
+    router.put("/filme").respond(this::atualizaFilme);
+    router.get("/filme").respond(this::listaFilmes);
+    router.get("/filmeById/:id").respond(this::getFilmeById);
+    router.delete("/filme/:id").respond(this::deleteFilmeById);
 
     //Usuário
-    router.post("/usuarios").respond(this::createUsuario);
-    router.put("/usuarios").respond(this::updateUsuario);
-    router.get("/usuarios").respond(this::findUsuarios);
-    router.get("/usuarios/:id").respond(this::findUsuario);
-    router.delete("/usuarios/:id").respond(this::deleteUsuario);
+    router.post("/usuario").respond(this::salvaUsuario);
+    router.put("/usuario").respond(this::atualizaUsuario);
+    router.get("/usuario").respond(this::listaUsuarios);
+    router.get("/usuario/:id").respond(this::getUsuarioById);
+    router.delete("/usuario/:id").respond(this::deleteUsuarioById);
 
     Uni<HttpServer> startHttpServer = vertx.createHttpServer()
       .requestHandler(router)
@@ -100,27 +100,27 @@ public class MainVerticle extends AbstractVerticle {
     return Uni.combine().all().unis(startHibernate, startHttpServer).discardItems();
   }
 
-  private Uni<List<Usuario>> findUsuarios(RoutingContext ctx) {
+  private Uni<List<Usuario>> listaUsuarios(RoutingContext ctx) {
     return emf.withSession(session -> session.createQuery(
       "from Usuario", Usuario.class
     ).getResultList());
   }
 
-  private Uni<Usuario> findUsuario(RoutingContext ctx) {
+  private Uni<Usuario> getUsuarioById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withSession(session -> session
         .find(Usuario.class, id))
       .onItem().ifNull().continueWith(Usuario::new);
   }
 
-  private Uni<Usuario> createUsuario(RoutingContext ctx) {
+  private Uni<Usuario> salvaUsuario(RoutingContext ctx) {
     Usuario usuario = ctx.body().asPojo(Usuario.class);
     return emf.withSession(session -> session.persist(usuario)
       .call(session::flush)
       .replaceWith(usuario));
   }
 
-  private Uni<Usuario> updateUsuario(RoutingContext ctx) {
+  private Uni<Usuario> atualizaUsuario(RoutingContext ctx) {
     Usuario usuario = ctx.body().asPojo(Usuario.class);
     return emf.withTransaction((s,t) -> s.find(Usuario.class, usuario.getId())
       .onItem().ifNotNull().invoke(entity -> {
@@ -145,7 +145,7 @@ public class MainVerticle extends AbstractVerticle {
       }));
   }
 
-  private Uni<Void> deleteUsuario(RoutingContext ctx) {
+  private Uni<Void> deleteUsuarioById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withTransaction((s, t) ->
       s.find(Usuario.class, id)
@@ -155,27 +155,27 @@ public class MainVerticle extends AbstractVerticle {
         .onItem().ifNull().continueWith(() -> "Usuario não encontrado")).replaceWithVoid();
   }
 
-  private Uni<List<Filme>> findFilmes(RoutingContext ctx) {
+  private Uni<List<Filme>> listaFilmes(RoutingContext ctx) {
     return emf.withSession(session -> session.createQuery(
       "from Filme", Filme.class
     ).getResultList());
   }
 
-  private Uni<Filme> findFilme(RoutingContext ctx) {
+  private Uni<Filme> getFilmeById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withSession(session -> session
         .find(Filme.class, id))
       .onItem().ifNull().continueWith(Filme::new);
   }
 
-  private Uni<Filme> createFilme(RoutingContext ctx) {
+  private Uni<Filme> salvaFilme(RoutingContext ctx) {
     Filme filme = ctx.body().asPojo(Filme.class);
     return emf.withSession(session -> session.persist(filme)
       .call(session::flush)
       .replaceWith(filme));
   }
 
-  private Uni<Filme> updateFilme(RoutingContext ctx) {
+  private Uni<Filme> atualizaFilme(RoutingContext ctx) {
     Filme filme = ctx.body().asPojo(Filme.class);
     return emf.withTransaction((s,t) -> s.find(Filme.class, filme.getId())
       .onItem().ifNotNull().invoke(entity -> {
@@ -203,7 +203,7 @@ public class MainVerticle extends AbstractVerticle {
       }));
   }
 
-  private Uni<Void> deleteFilme(RoutingContext ctx) {
+  private Uni<Void> deleteFilmeById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withTransaction((s, t) ->
       s.find(Filme.class, id)
@@ -213,27 +213,27 @@ public class MainVerticle extends AbstractVerticle {
         .onItem().ifNull().continueWith(() -> "Filme não encontrado")).replaceWithVoid();
   }
 
-  private Uni<List<Categoria>> findCategorias(RoutingContext ctx) {
+  private Uni<List<Categoria>> listaCategorias(RoutingContext ctx) {
     return emf.withSession(session -> session.createQuery(
       "from Categoria", Categoria.class
     ).getResultList());
   }
 
-  private Uni<Categoria> findCategoria(RoutingContext ctx) {
+  private Uni<Categoria> getCategoriaById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withSession(session -> session
         .find(Categoria.class, id))
       .onItem().ifNull().continueWith(Categoria::new);
   }
 
-  private Uni<Categoria> createCategoria(RoutingContext ctx) {
+  private Uni<Categoria> salvaCategoria(RoutingContext ctx) {
     Categoria categoria = ctx.body().asPojo(Categoria.class);
     return emf.withSession(session -> session.persist(categoria)
       .call(session::flush)
       .replaceWith(categoria));
   }
 
-  private Uni<Categoria> updateCategoria(RoutingContext ctx) {
+  private Uni<Categoria> atualizaCategoria(RoutingContext ctx) {
     Categoria categoria = ctx.body().asPojo(Categoria.class);
     return emf.withTransaction((s,t) -> s.find(Categoria.class, categoria.getId())
       .onItem().ifNotNull().invoke(entity -> {
@@ -249,7 +249,7 @@ public class MainVerticle extends AbstractVerticle {
       }));
   }
 
-  private Uni<Void> deleteCategoria(RoutingContext ctx) {
+  private Uni<Void> deleteCategoriaById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withTransaction((s, t) ->
       s.find(Categoria.class, id)
@@ -259,14 +259,14 @@ public class MainVerticle extends AbstractVerticle {
         .onItem().ifNull().continueWith(() -> "Categoria não encontrada")).replaceWithVoid();
   }
 
-  private Uni<Idioma> createIdioma(RoutingContext ctx) {
+  private Uni<Idioma> salvaIdioma(RoutingContext ctx) {
     Idioma idioma = ctx.body().asPojo(Idioma.class);
     return emf.withSession(session -> session.persist(idioma)
       .call(session::flush)
       .replaceWith(idioma));
   }
 
-  private Uni<Idioma> updateIdioma(RoutingContext ctx) {
+  private Uni<Idioma> atualizaIdioma(RoutingContext ctx) {
     Idioma idioma = ctx.body().asPojo(Idioma.class);
     return emf.withTransaction((s,t) -> s.find(Idioma.class, idioma.getId())
       .onItem().ifNotNull().invoke(entity -> {
@@ -279,20 +279,20 @@ public class MainVerticle extends AbstractVerticle {
         }));
   }
 
-  private Uni<List<Idioma>> findIdiomas(RoutingContext ctx) {
+  private Uni<List<Idioma>> listaIdiomas(RoutingContext ctx) {
     return emf.withSession(session -> session.createQuery(
       "from Idioma", Idioma.class
     ).getResultList());
   }
 
-  private Uni<Idioma> findIdioma(RoutingContext ctx) {
+  private Uni<Idioma> getIdiomaById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withSession(session -> session
         .find(Idioma.class, id))
       .onItem().ifNull().continueWith(Idioma::new);
   }
 
-  private Uni<Void> deleteIdioma(RoutingContext ctx) {
+  private Uni<Void> deleteIdiomaById(RoutingContext ctx) {
     long id = Long.parseLong(ctx.pathParam("id"));
     return emf.withTransaction((s, t) ->
       s.find(Idioma.class, id)
