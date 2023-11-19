@@ -9,8 +9,10 @@ public class Idioma {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(nullable = false)
   private String nome;
 
+  @Column(nullable = false)
   private String tag;
 
   public Idioma() {
